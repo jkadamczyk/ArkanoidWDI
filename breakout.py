@@ -5,9 +5,7 @@ import pygame
 black = (0, 0, 0)
 white = (255, 255, 255)
 blue = (0, 0, 255)
-
-# Size of break-out blocks
-block_width = 23
+block_width = 30
 block_height = 15
 
 
@@ -124,10 +122,10 @@ class Player(pygame.sprite.Sprite):
         # Call the parent's constructor
         super().__init__()
 
-        self.width = 75
+        self.width = 125
         self.height = 15
         self.image = pygame.Surface([self.width, self.height])
-        self.image.fill((white))
+        self.image.fill(white)
 
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
@@ -135,7 +133,7 @@ class Player(pygame.sprite.Sprite):
         self.screenwidth = pygame.display.get_surface().get_width()
 
         self.rect.x = 0
-        self.rect.y = self.screenheight - self.height
+        self.rect.y = self.screenheight - self.height - 15
 
     def update(self):
         """ Update the player position. """
@@ -152,11 +150,14 @@ class Player(pygame.sprite.Sprite):
 # Call this function so the Pygame library can initialize itself
 pygame.init()
 
+# Declare variables for labels that show points and lives
+points = 0
+
 # Create an 800x600 sized screen
 screen = pygame.display.set_mode([800, 600])
 
 # Set the title of the window
-pygame.display.set_caption('Breakout')
+pygame.display.set_caption('Arkanoid')
 
 # Enable this to make the mouse disappear when over our window
 pygame.mouse.set_visible(0)
@@ -218,6 +219,10 @@ while not exit_program:
     # Clear the screen
     screen.fill(black)
 
+    # Prints label with points, blocks that we destroyed
+    label = font.render(str(points), 1, white)
+    screen.blit(label, (5, 5))
+
     # Process the events in the game
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -233,9 +238,14 @@ while not exit_program:
     # If we are done, print game over
     if game_over:
         text = font.render("Game Over", True, white)
-        textpos = text.get_rect(centerx=background.get_width() / 2)
-        textpos.top = 300
-        screen.blit(text, textpos)
+        text_position = text.get_rect(centerx=background.get_width() / 2)
+        text_position.top = 300
+        screen.blit(text, text_position)
+        score = font.render("You scored " + str(points) + " points!", True, white)
+        score_position = score.get_rect(centerx=background.get_width() / 2)
+        score_position.top = 330
+        screen.blit(score, score_position)
+        points = 0
 
     # See if the ball hits the player paddle
     if pygame.sprite.spritecollide(player, balls, False):
@@ -254,6 +264,7 @@ while not exit_program:
     # If we actually hit a block, bounce the ball
     if len(deadblocks) > 0:
         ball.bounce(0)
+        points += len(deadblocks)
 
         # Game ends if all the blocks are gone
         if len(blocks) == 0:
