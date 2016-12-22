@@ -5,8 +5,8 @@ import pygame
 black = (0, 0, 0)
 white = (255, 255, 255)
 blue = (0, 0, 255)
-block_width = 30
-block_height = 15
+block_width = 58
+block_height = 20
 
 
 class Block(pygame.sprite.Sprite):
@@ -48,7 +48,9 @@ class Ball(pygame.sprite.Sprite):
     y = 180.0
 
     # Direction of ball (in degrees)
-    direction = 200
+    direction = 0
+
+    isActive = False
 
     width = 10
     height = 10
@@ -80,37 +82,48 @@ class Ball(pygame.sprite.Sprite):
 
     def update(self):
         """ Update the position of the ball. """
-        # Sine and Cosine work in degrees, so we have to convert them
-        direction_radians = math.radians(self.direction)
+        if self.isActive:
+            # Sine and Cosine work in degrees, so we have to convert them
+            direction_radians = math.radians(self.direction)
 
-        # Change the position (x and y) according to the speed and direction
-        self.x += self.speed * math.sin(direction_radians)
-        self.y -= self.speed * math.cos(direction_radians)
+            # Change the position (x and y) according to the speed and direction
+            self.x += self.speed * math.sin(direction_radians)
+            self.y -= self.speed * math.cos(direction_radians)
 
-        # Move the image to where our x and y are
-        self.rect.x = self.x
-        self.rect.y = self.y
+            # Move the image to where our x and y are
+            self.rect.x = self.x
+            self.rect.y = self.y
 
-        # Do we bounce off the top of the screen?
-        if self.y <= 0:
-            self.bounce(0)
-            self.y = 1
+            # Do we bounce off the top of the screen?
+            if self.y <= 0:
+                self.bounce(0)
+                self.y = 1
 
-        # Do we bounce off the left of the screen?
-        if self.x <= 0:
-            self.direction = (360 - self.direction) % 360
-            self.x = 1
+            # Do we bounce off the left of the screen?
+            if self.x <= 0:
+                self.direction = (360 - self.direction) % 360
+                self.x = 1
 
-        # Do we bounce of the right side of the screen?
-        if self.x > self.screenwidth - self.width:
-            self.direction = (360 - self.direction) % 360
-            self.x = self.screenwidth - self.width - 1
+            # Do we bounce of the right side of the screen?
+            if self.x > self.screenwidth - self.width:
+                self.direction = (360 - self.direction) % 360
+                self.x = self.screenwidth - self.width - 1
 
-        # Did we fall off the bottom edge of the screen?
-        if self.y > 600:
-            return True
+            # Did we fall off the bottom edge of the screen?
+            if self.y > 600:
+                return True
+            else:
+                return False
         else:
-            return False
+            pos = pygame.mouse.get_pos()
+            self.x = pos[0] + 50 - self.width/2
+            self.y = self.screenheight - 40
+
+            if self.x > self.screenwidth - 50 - self.width/2:
+                self.x = self. screenwidth - 50 - self.width/2
+
+            self.rect.x = self.x
+            self.rect.y = self.y
 
 
 class Player(pygame.sprite.Sprite):
@@ -122,7 +135,7 @@ class Player(pygame.sprite.Sprite):
         # Call the parent's constructor
         super().__init__()
 
-        self.width = 125
+        self.width = 100
         self.height = 15
         self.image = pygame.Surface([self.width, self.height])
         self.image.fill(white)
@@ -133,7 +146,7 @@ class Player(pygame.sprite.Sprite):
         self.screenwidth = pygame.display.get_surface().get_width()
 
         self.rect.x = 0
-        self.rect.y = self.screenheight - self.height - 15
+        self.rect.y = self.screenheight - self.height
 
     def update(self):
         """ Update the player position. """
@@ -152,6 +165,8 @@ pygame.init()
 
 # Declare variables for labels that show points and lives
 points = 0
+
+lives = 3
 
 # Create an 800x600 sized screen
 screen = pygame.display.set_mode([800, 600])
@@ -186,20 +201,19 @@ balls.add(ball)
 top = 80
 
 # Number of blocks to create
-blockcount = 32
+blockcount = 12
 
-# --- Create blocks
-
+# --- Create block
 # Five rows of blocks
-for row in range(5):
+for row in range(4):
     # 32 columns of blocks
     for column in range(0, blockcount):
         # Create a block (color,x,y)
-        block = Block(blue, column * (block_width + 2) + 1, top)
+        block = Block(blue, column * (block_width + 5) + 22, top)
         blocks.add(block)
         allsprites.add(block)
     # Move the top of the next row down
-    top += block_height + 2
+    top += block_height + 5
 
 # Clock to limit speed
 clock = pygame.time.Clock()
@@ -220,20 +234,37 @@ while not exit_program:
     screen.fill(black)
 
     # Prints label with points, blocks that we destroyed
-    label = font.render(str(points), 1, white)
-    screen.blit(label, (5, 5))
+    labelPoints = font.render("Points: "+str(points), 1, white)
+    screen.blit(labelPoints, (5, 5))
+
+    # Prints label with lives left
+    labelLives = font.render("Lives: "+str(lives), 1, white)
+    screen.blit(labelLives, (700, 5))
 
     # Process the events in the game
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit_program = True
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                ball.isActive = True
+
+            elif event.key == pygame.K_RETURN and game_over == True:
+                points = 0
+                lives = 3
+                game_over = False
 
     # Update the ball and player position as long
     # as the game is not over.
     if not game_over:
         # Update the player and ball positions
         player.update()
-        game_over = ball.update()
+        if ball.update():
+            lives -= 1
+            ball.isActive = False
+            ball.direction = 0
+            if lives == 0:
+                game_over = True
 
     # If we are done, print game over
     if game_over:
@@ -245,13 +276,12 @@ while not exit_program:
         score_position = score.get_rect(centerx=background.get_width() / 2)
         score_position.top = 330
         screen.blit(score, score_position)
-        points = 0
 
     # See if the ball hits the player paddle
     if pygame.sprite.spritecollide(player, balls, False):
         # The 'diff' lets you try to bounce the ball left or right
         # depending where on the paddle you hit it
-        diff = (player.rect.x + player.width / 2) - (ball.rect.x + ball.width / 2)
+        diff = (player.rect.x + player.width / 3) - (ball.rect.x + ball.width / 3)
 
         # Set the ball's y position in case
         # we hit the ball on the edge of the paddle
