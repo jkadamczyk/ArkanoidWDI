@@ -261,7 +261,7 @@ while not exit_game:
     if pygame.sprite.spritecollide(player, balls, False):
         # The 'diff' lets you try to bounce the ball left or right
         # depending where on the paddle you hit it
-        diff = (player.rect.x + player.width / 3) - (ball.rect.x + ball.width / 3)
+        diff = (player.rect.x + player.width / 2) - (ball.rect.x + ball.width / 2)
 
         # Set the ball's y position in case
         # we hit the ball on the edge of the paddle
