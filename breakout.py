@@ -33,7 +33,7 @@ class Ball(pygame.sprite.Sprite):
     """Class represents Ball, our main item that is bounced with paddle, used to destroy blocks"""
 
     # some class wide variables name says for itself
-    speed = 10.0
+    speed = 7.0
     x = 0.0
     y = 0.0
     direction = 0 # in degrees
@@ -186,7 +186,7 @@ exit_game = False
 # Main game loop
 while not exit_game:
     # Limit to 45 fps also determines speed of game
-    clock.tick(45)
+    clock.tick(60)
     # screen refresh (clearing it)
     screen.fill(black)
     # Prints label with points, blocks that we destroyed
