@@ -12,10 +12,10 @@ block_width = 58
 block_height = 20
 
 
-class Menu:
-    """Class used to create menu object"""
-
-    def __init__(self):
+# class Menu:
+#     """Class used to create menu object"""
+#
+#     def __init__(self):
 
 
 
