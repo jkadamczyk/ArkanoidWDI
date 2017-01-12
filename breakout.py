@@ -12,6 +12,13 @@ block_width = 58
 block_height = 20
 
 
+class Menu:
+    """Class used to create menu object"""
+
+    def __init__(self):
+
+
+
 class Block(pygame.sprite.Sprite):
     """Class represents Block, element of the game that is intended to be destroyed by ball"""
 
@@ -92,11 +99,11 @@ class Ball(pygame.sprite.Sprite):
         else:
             # Get actual mouse position
             pos = pygame.mouse.get_pos()
-            self.x = pos[0] + 50 - self.width/2
+            self.x = pos[0] + 45 - self.width/2
             self.y = self.screenheight - 30
             # Checking if our ball doesn't go to far right
-            if self.x > self.screenwidth - 50 - self.width/2:
-                self.x = self. screenwidth - 50 - self.width/2
+            if self.x > self.screenwidth - 45 - self.width/2:
+                self.x = self. screenwidth - 45 - self.width/2
             # Giving the object actual coordinates
             self.rect.x = self.x
             self.rect.y = self.y
@@ -109,7 +116,7 @@ class Paddle(pygame.sprite.Sprite):
         """Constructor for paddle"""
         super().__init__()
         # Define objects attributes
-        self.width = 100
+        self.width = 90
         self.height = 15
         # set surface of certain size
         self.image = pygame.Surface([self.width, self.height])
@@ -185,6 +192,7 @@ game_over = False
 exit_game = False
 # Main game loop
 while not exit_game:
+    pygame.event.set_grab(ball.isActive)
     # Limit to 45 fps also determines speed of game
     clock.tick(60)
     # screen refresh (clearing it)
@@ -242,6 +250,7 @@ while not exit_game:
             ball.direction = 0
             if lives == 0:
                 game_over = True
+                ball.isActive = False
 
     # If we are done, print game over
     if game_over:
