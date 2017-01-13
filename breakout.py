@@ -6,17 +6,12 @@ white = (255, 255, 255)
 black = (0, 0, 0)
 blue = (0, 0, 255)
 pink = (255, 105, 180)
+grey = (192, 192, 192)
+dark_grey = (105, 105, 105)
 red = (255, 0, 0)
 # hardcoded global block dimensions:
 block_width = 58
 block_height = 20
-
-
-# class Menu:
-#     """Class used to create menu object"""
-#
-#     def __init__(self):
-
 
 
 class Block(pygame.sprite.Sprite):
@@ -151,7 +146,7 @@ screen = pygame.display.set_mode([800, 600])
 # Window label is being set to game name
 pygame.display.set_caption('Arkanoid by Jakub Adamczyk')
 # making mouse disappear when it is hovering over game window
-pygame.mouse.set_visible(0)
+pygame.mouse.set_visible(1)
 # declaring main game font + its size
 font = pygame.font.Font(None, 36)
 # create background/surface that all objects appear on
@@ -190,109 +185,181 @@ clock = pygame.time.Clock()
 game_over = False
 # program close variable temrinates main game  if true
 exit_game = False
+# condition that makes menu possible
+playing = False
+# startmenu buttons rectangles
+start = pygame.Rect(250, 200, 300, 50)
+quit_game = pygame.Rect(250, 300, 300, 50)
 # Main game loop
 while not exit_game:
-    pygame.event.set_grab(ball.isActive)
-    # Limit to 45 fps also determines speed of game
-    clock.tick(60)
-    # screen refresh (clearing it)
-    screen.fill(black)
-    # Prints label with points, blocks that we destroyed
-    labelPoints = font.render("Points: "+str(points), 1, white)
-    screen.blit(labelPoints, (5, 5))
+    if playing:
+        pygame.event.set_grab(ball.isActive)
+        # Limit to 45 fps also determines speed of game
+        clock.tick(60)
+        # screen refresh (clearing it)
+        screen.fill(black)
+        # Prints label with points, blocks that we destroyed
+        labelPoints = font.render("Points: "+str(points), 1, white)
+        screen.blit(labelPoints, (5, 5))
 
-    # Prints label with lives left
-    labelLives = font.render("Lives: "+str(lives), 1, white)
-    screen.blit(labelLives, (700, 5))
+        # Prints label with lives left
+        labelLives = font.render("Lives: "+str(lives), 1, white)
+        screen.blit(labelLives, (700, 5))
 
-    # Process the events in the game
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            exit_game = True
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                ball.isActive = True
+        # Process the events in the game
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit_game = True
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    ball.isActive = True
 
-            elif event.key == pygame.K_RETURN and game_over == True:
-                points = 0
-                lives = 3
-                game_over = False
-                allsprites.empty()
-                balls.empty()
-                blocks.empty()
-                player = Paddle()
-                allsprites.add(player)
-                ball = Ball()
-                allsprites.add(ball)
-                balls.add(ball)
-                top = 80
-                for row in range(4):
-                    for column in range(0, blockcount):
-                        # Create a block (color,x,y)
-                        if row % 2 == 0:
-                            block = Block(pink, column * (block_width + 5) + 22, top)
-                        else:
-                            block = Block(blue, column * (block_width + 5) + 22, top)
-                        blocks.add(block)
-                        allsprites.add(block)
-                    # Move the top of the next row down
-                    top += block_height + 5
+                elif event.key == pygame.K_RETURN and game_over == True:
+                    points = 0
+                    lives = 3
+                    game_over = False
+                    allsprites.empty()
+                    balls.empty()
+                    blocks.empty()
+                    player = Paddle()
+                    allsprites.add(player)
+                    ball = Ball()
+                    allsprites.add(ball)
+                    balls.add(ball)
+                    top = 80
+                    for row in range(4):
+                        for column in range(0, blockcount):
+                            # Create a block (color,x,y)
+                            if row % 2 == 0:
+                                block = Block(pink, column * (block_width + 5) + 22, top)
+                            else:
+                                block = Block(blue, column * (block_width + 5) + 22, top)
+                            blocks.add(block)
+                            allsprites.add(block)
+                        # Move the top of the next row down
+                        top += block_height + 5
 
+                elif event.key == pygame.K_ESCAPE and game_over == True:
+                    points = 0
+                    lives = 3
+                    game_over = False
+                    allsprites.empty()
+                    balls.empty()
+                    blocks.empty()
+                    player = Paddle()
+                    allsprites.add(player)
+                    ball = Ball()
+                    allsprites.add(ball)
+                    balls.add(ball)
+                    top = 80
+                    for row in range(4):
+                        for column in range(0, blockcount):
+                            # Create a block (color,x,y)
+                            if row % 2 == 0:
+                                block = Block(pink, column * (block_width + 5) + 22, top)
+                            else:
+                                block = Block(blue, column * (block_width + 5) + 22, top)
+                            blocks.add(block)
+                            allsprites.add(block)
+                        # Move the top of the next row down
+                        top += block_height + 5
+                    playing = False
+                    pygame.mouse.set_visible(1)
 
-    # Update the ball and player position as long
-    # as the game is not over.
-    if not game_over:
-        # Update the player and ball positions
-        player.update()
-        if ball.update():
-            lives -= 1
-            ball.isActive = False
-            ball.direction = 0
-            if lives == 0:
-                game_over = True
+        # Update the ball and player position as long
+        # as the game is not over.
+        if not game_over:
+            # Update the player and ball positions
+            player.update()
+            if ball.update():
+                lives -= 1
                 ball.isActive = False
+                ball.direction = 0
+                if lives == 0:
+                    game_over = True
+                    ball.isActive = False
 
-    # If we are done, print game over
-    if game_over:
-        if points == 48:
-            text = font.render("YOU WON!", True, white)
+        # If we are done, print game over
+        if game_over:
+            if points == 48:
+                text = font.render("YOU WON!", True, white)
+            else:
+                text = font.render("Game Over!", True, white)
+            text_position = text.get_rect(centerx=background.get_width() / 2)
+            text_position.top = 300
+            screen.blit(text, text_position)
+            score = font.render("You scored " + str(points) + " points!", True, white)
+            score_position = score.get_rect(centerx=background.get_width() / 2)
+            score_position.top = 330
+            screen.blit(score, score_position)
+            info = font.render("Press esc to get back to Main Menu", True, white)
+            info_position = info.get_rect(centerx=background.get_width() / 2)
+            info_position.top = 360
+            screen.blit(info, info_position)
+
+        # See if the ball hits the player paddle
+        if pygame.sprite.spritecollide(player, balls, False):
+            # The 'diff' lets you try to bounce the ball left or right
+            # depending where on the paddle you hit it
+            diff = (player.rect.x + player.width / 2) - (ball.rect.x + ball.width / 2)
+
+            # Set the ball's y position in case
+            # we hit the ball on the edge of the paddle
+            ball.rect.y = screen.get_height() - player.rect.height - ball.rect.height - 1
+            ball.bounce(diff)
+
+        # Check for collisions between the ball and the blocks
+        deadblocks = pygame.sprite.spritecollide(ball, blocks, True)
+
+        # If we actually hit a block, bounce the ball
+        if len(deadblocks) > 0:
+            ball.bounce(0)
+            points += len(deadblocks)
+
+            # Game ends if all the blocks are gone
+            if len(blocks) == 0:
+                game_over = True
+
+        # Draw Everything
+        allsprites.draw(screen)
+
+        # Flip the screen and show what we've drawn
+        pygame.display.flip()
+
+    else:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit_game = True
+        screen.fill(black)
+        mouse = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        clock.tick(15)
+        start_text = font.render("START GAME", 1, white)
+        quit_game_text = font.render("QUIT GAME", 1, white)
+        game_title_text = font.render("ARKANOID", 1, white)
+
+        if 250 <= mouse[0] <= 550 and 200 <= mouse[1] <= 250:
+            pygame.draw.rect(screen, dark_grey, start)
+            if click[0] == 1:
+                playing = True
+                pygame.mouse.set_visible(0)
+
+
         else:
-            text = font.render("Game Over!", True, white)
-        text_position = text.get_rect(centerx=background.get_width() / 2)
-        text_position.top = 300
-        screen.blit(text, text_position)
-        score = font.render("You scored " + str(points) + " points!", True, white)
-        score_position = score.get_rect(centerx=background.get_width() / 2)
-        score_position.top = 330
-        screen.blit(score, score_position)
+            pygame.draw.rect(screen, grey, start)
 
-    # See if the ball hits the player paddle
-    if pygame.sprite.spritecollide(player, balls, False):
-        # The 'diff' lets you try to bounce the ball left or right
-        # depending where on the paddle you hit it
-        diff = (player.rect.x + player.width / 2) - (ball.rect.x + ball.width / 2)
+        if 250 <= mouse[0] <= 550 and 300 <= mouse[1] <= 350:
+            pygame.draw.rect(screen, dark_grey, quit_game)
+            if click[0] == 1:
+                exit_game = True
+        else:
+            pygame.draw.rect(screen, grey, quit_game)
 
-        # Set the ball's y position in case
-        # we hit the ball on the edge of the paddle
-        ball.rect.y = screen.get_height() - player.rect.height - ball.rect.height - 1
-        ball.bounce(diff)
+        screen.blit(start_text, (318, 215))
+        screen.blit(quit_game_text, (325, 315))
+        screen.blit(game_title_text, (330, 100))
 
-    # Check for collisions between the ball and the blocks
-    deadblocks = pygame.sprite.spritecollide(ball, blocks, True)
+        pygame.display.flip()
 
-    # If we actually hit a block, bounce the ball
-    if len(deadblocks) > 0:
-        ball.bounce(0)
-        points += len(deadblocks)
-
-        # Game ends if all the blocks are gone
-        if len(blocks) == 0:
-            game_over = True
-
-    # Draw Everything
-    allsprites.draw(screen)
-
-    # Flip the screen and show what we've drawn
-    pygame.display.flip()
 
 pygame.quit()
