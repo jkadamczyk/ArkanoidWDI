@@ -335,8 +335,15 @@ while not exit_game:
         click = pygame.mouse.get_pressed()
         clock.tick(15)
         start_text = font.render("START GAME", 1, white)
+        start_text_position = start_text.get_rect(centerx=background.get_width() / 2)
+        start_text_position.top = 215
         quit_game_text = font.render("QUIT GAME", 1, white)
+        quit_game_text_position = quit_game_text.get_rect(centerx=background.get_width() / 2)
+        quit_game_text_position.top = 315
         game_title_text = font.render("ARKANOID", 1, white)
+        game_title_text_position = game_title_text.get_rect(centerx=background.get_width() / 2)
+        game_title_text_position.top = 100
+
 
         if 250 <= mouse[0] <= 550 and 200 <= mouse[1] <= 250:
             pygame.draw.rect(screen, dark_grey, start)
@@ -355,9 +362,9 @@ while not exit_game:
         else:
             pygame.draw.rect(screen, grey, quit_game)
 
-        screen.blit(start_text, (318, 215))
-        screen.blit(quit_game_text, (325, 315))
-        screen.blit(game_title_text, (330, 100))
+        screen.blit(start_text, start_text_position)
+        screen.blit(quit_game_text, quit_game_text_position)
+        screen.blit(game_title_text, game_title_text_position)
 
         pygame.display.flip()
 
