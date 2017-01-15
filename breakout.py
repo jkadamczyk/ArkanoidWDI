@@ -1,7 +1,7 @@
 import math
 import pygame
 
-# global hardcoded variables for easier use of colors:
+# global hardcoded variables for easier use of colors (RGB format):
 white = (255, 255, 255)
 black = (0, 0, 0)
 blue = (0, 0, 255)
@@ -9,74 +9,112 @@ pink = (255, 105, 180)
 grey = (192, 192, 192)
 dark_grey = (105, 105, 105)
 red = (255, 0, 0)
+
 # hardcoded global block dimensions:
 block_width = 58
 block_height = 20
+
+'''
+Classes inherit from sprite class that is predefined in Pygame, and used for easier creating of game objects
+(e.g built-in collide function)
+'''
 
 
 class Block(pygame.sprite.Sprite):
     """Class represents Block, element of the game that is intended to be destroyed by ball"""
 
     def __init__(self, color, x, y):
-        """ Constructor requires color, and coordinates """
+        """ Constructor requires color, and coordinates
+        color - color of block
+        x - x coordinate for block location
+        y - y coordinate for block location on screen"""
+
+        # using super class constructor
         super().__init__()
+
         # creates Blocks surface
         self.image = pygame.Surface([block_width, block_height])
-        # fill block with color
+
+        # fill block with color entered in constructor
         self.image.fill(color)
+
         # make object a rectangle with dimensions of image
         self.rect = self.image.get_rect()
-        # place object where it should be placed
+
+        # setting rectangle placement using arguments entered
         self.rect.x = x
         self.rect.y = y
 
 
 class Ball(pygame.sprite.Sprite):
-    """Class represents Ball, our main item that is bounced with paddle, used to destroy blocks"""
+    """Class represents Ball, our main item that bounces when coliding with paddle
+     used to destroy blocks"""
 
-    # some class wide variables name says for itself
+    # declaring speed of ball
     speed = 7.0
+
+    # initialising variables for ball coordinates(they will change, but place/memory for them is necessary)
     x = 0.0
     y = 0.0
-    direction = 0 # in degrees
-    isActive = False # determines whether ball is active (moving) at start of game
+
+    # initial declaration for angle in which Ball is moving
+    direction = 0
+
+    # determines whether ball is active (moving) at start of game
+    # (e.g. it is used when you press space to release the ball)
+    isActive = False
+
+    # fixed ball dimensions
     width = 10
     height = 10
 
     def __init__(self):
+        """Ball constructor"""
+
+        # super class constructor is imported
         super().__init__()
+
         # creating surface of the ball
         self.image = pygame.Surface([self.width, self.height])
-        # fill surface with some color
+
+        # fill surface with color(red)
         self.image.fill(red)
-        # Make proper rectangle that is filled with our surface and color
+
+        # making it a rectangle object
         self.rect = self.image.get_rect()
-        # storing class-wide our display surface dimesnions
+
+        # getting main game surface dimensions for class wide use
         self.screenheight = pygame.display.get_surface().get_height()
         self.screenwidth = pygame.display.get_surface().get_width()
 
-    def bounce(self, diff):
+    def bounce(self, angle_difference):
         """function makes possible for the ball to bounce"""
         self.direction = (180 - self.direction) % 360
-        self.direction -= diff
+        self.direction -= angle_difference
 
     def update(self):
         """function that updates position of ball
-        i have a condition isActive that determines whether we want the ball to behave statically
-        ie. when it is above paddle, or actively, so it actually moves, bounces etc. + returns True when we hit bottom,
+        I have a condition isActive that determines whether we want the ball to behave statically
+        ie. when it is above paddle(waiting to press space and start playing), or actively, so it actually moves,
+        bounces etc. + returns True when we hit bottom,
         so we use the function to determine life loss or game over state"""
+
         if self.isActive:
             # converting degrees to radians in order to use it for sine, and cosine
-            direction_radians = math.radians(self.direction)
-            # updating coords with actual speed calculated based on direction
-            self.x += self.speed * math.sin(direction_radians)
-            self.y -= self.speed * math.cos(direction_radians)
-            # moving image accordingly to our coords
+            direction_in_radians = math.radians(self.direction)
+
+            # updating coordinates with actual speed calculated based on direction
+            self.x += self.speed * math.sin(direction_in_radians)
+            self.y -= self.speed * math.cos(direction_in_radians)
+
+            # moving image accordingly to our calculated coordinates
             self.rect.x = self.x
             self.rect.y = self.y
+
             # determining top wall bounce
             if self.y <= 0:
-                self.bounce(0) # diff is equal to 0
+                # angle_difference is equal to 0
+                self.bounce(0)
                 self.y = 1
             # determining left wall bounce
             if self.x <= 0:
@@ -86,7 +124,8 @@ class Ball(pygame.sprite.Sprite):
             if self.x > self.screenwidth - self.width:
                 self.direction = (360 - self.direction) % 360
                 self.x = self.screenwidth - self.width - 1
-            # checking whether we did hit botto m not the paddle
+
+            # checking whether we did hit bottom not the paddle
             if self.y > 600:
                 return True
             else:
@@ -94,11 +133,15 @@ class Ball(pygame.sprite.Sprite):
         else:
             # Get actual mouse position
             pos = pygame.mouse.get_pos()
+
+            # update coordinates so that ball moves when we move paddle
             self.x = pos[0] + 45 - self.width/2
             self.y = self.screenheight - 30
+
             # Checking if our ball doesn't go to far right
             if self.x > self.screenwidth - 45 - self.width/2:
                 self.x = self. screenwidth - 45 - self.width/2
+
             # Giving the object actual coordinates
             self.rect.x = self.x
             self.rect.y = self.y
@@ -170,7 +213,7 @@ blockcount = 12
 for row in range(4):
     # 12 columns of blocks
     for column in range(0, blockcount):
-        # 2 different colors of blocks
+        # 2 angle_differenceerent colors of blocks
         if row % 2 == 0:
             block = Block(pink, column * (block_width + 5) + 22, top)
         else:
@@ -299,14 +342,14 @@ while not exit_game:
 
         # See if the ball hits the player paddle
         if pygame.sprite.spritecollide(player, balls, False):
-            # The 'diff' lets you try to bounce the ball left or right
+            # The 'angle_difference' lets you try to bounce the ball left or right
             # depending where on the paddle you hit it
-            diff = (player.rect.x + player.width / 2) - (ball.rect.x + ball.width / 2)
+            angle_difference = (player.rect.x + player.width / 2) - (ball.rect.x + ball.width / 2)
 
             # Set the ball's y position in case
             # we hit the ball on the edge of the paddle
             ball.rect.y = screen.get_height() - player.rect.height - ball.rect.height - 1
-            ball.bounce(diff)
+            ball.bounce(angle_difference)
 
         # Check for collisions between the ball and the blocks
         deadblocks = pygame.sprite.spritecollide(ball, blocks, True)
