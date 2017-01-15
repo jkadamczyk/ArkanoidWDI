@@ -152,96 +152,134 @@ class Paddle(pygame.sprite.Sprite):
 
     def __init__(self):
         """Constructor for paddle"""
+
+        # importing super class constructor
         super().__init__()
-        # Define objects attributes
+
+        # defining height and width of paddle
         self.width = 90
         self.height = 15
+
         # set surface of certain size
         self.image = pygame.Surface([self.width, self.height])
+
         # Fill it with color
         self.image.fill(white)
-        # Fetch rectangle on the coloured surface
+
+        # Create rectangular object so that we have it physically
         self.rect = self.image.get_rect()
-        # Getting our main surface/background dimensions
+
+        # Getting main surface dimensions for class wide use
         self.screenheight = pygame.display.get_surface().get_height()
         self.screenwidth = pygame.display.get_surface().get_width()
-        # Setting default position for paddle it needs some
+
+        # Setting start position for paddle (middle of surface)
         self.rect.x = 0
         self.rect.y = self.screenheight - self.height
 
     def update(self):
         """Updating paddles position"""
+
         # Getting mouse location
         pos = pygame.mouse.get_pos()
+
         # setting x coord to be paddle position
         self.rect.x = pos[0]
-        # Check whether the paddle doesn't go too far right
+
+        # Locking it in main game surface
         if self.rect.x > self.screenwidth - self.width:
             self.rect.x = self.screenwidth - self.width
 
 """Here starts our game logic"""
 pygame.init()
-# Points and lives variable that is diplayed int op corners
+
+# Points and lives variable that are displayed in corners(top right and left)
 points = 0
 lives = 3
-#declaring window dimensions
+
+# declaring window dimensions
 screen = pygame.display.set_mode([800, 600])
+
 # Window label is being set to game name
 pygame.display.set_caption('Arkanoid by Jakub Adamczyk')
-# making mouse disappear when it is hovering over game window
+
+# making mouse disappear when it is hovering over game window by default
+# it is changing during the game ie. in menu it is off
 pygame.mouse.set_visible(1)
-# declaring main game font + its size
+
+# declaring main game font + its size (font rendering)
 font = pygame.font.Font(None, 36)
+
 # create background/surface that all objects appear on
 background = pygame.Surface(screen.get_size())
+
 # our objects containers are being declared here
+# allsprites is an Group object that contains all sprite objects (those that are colliding)
 blocks = pygame.sprite.Group()
 balls = pygame.sprite.Group()
 allsprites = pygame.sprite.Group()
+
 # creating paddle object and adding it to allsprites group
 player = Paddle()
 allsprites.add(player)
+
 # creating the ball object and adding it to balls group and allsprites group
 ball = Ball()
 allsprites.add(ball)
 balls.add(ball)
+
 # determining how far from top blocks are starting to generate
 top = 80
+
 # determining number of blocks in a row
 blockcount = 12
-# Five rows of blocks
+
+# Five rows of blocks are crated
 for row in range(4):
-    # 12 columns of blocks
+    # 12 columns of blocks are created
     for column in range(0, blockcount):
-        # 2 angle_differenceerent colors of blocks
+        # 2 different colors of blocks
         if row % 2 == 0:
             block = Block(pink, column * (block_width + 5) + 22, top)
         else:
             block = Block(blue, column * (block_width + 5) + 22, top)
         blocks.add(block)
         allsprites.add(block)
-    # Move the top of the next row down
+
+    # Move the top of the next row down a little
     top += block_height + 5
-# Clock to limit speed
+
+# Initialize Clock to limit speed
 clock = pygame.time.Clock()
+
 # game over state variable
 game_over = False
-# program close variable temrinates main game  if true
+
+# program close variable terminates main game  if true
 exit_game = False
-# condition that makes menu possible
+
+# variable that makes menu possible when true menu is rendered instead of actual game
 playing = False
-# startmenu buttons rectangles
+
+# start menu buttons rectangles
 start = pygame.Rect(250, 200, 300, 50)
 quit_game = pygame.Rect(250, 300, 300, 50)
+
 # Main game loop
 while not exit_game:
+
+    # checking state in order to show game or menu
     if playing:
+        # making ball movable
         pygame.event.set_grab(ball.isActive)
-        # Limit to 45 fps also determines speed of game
+
+        # Limit to 60 fps, refresh rate
         clock.tick(60)
+
         # screen refresh (clearing it)
         screen.fill(black)
-        # Prints label with points, blocks that we destroyed
+
+        # Prints label with points, number of blocks that we destroyed
         labelPoints = font.render("Points: "+str(points), 1, white)
         screen.blit(labelPoints, (5, 5))
 
@@ -251,13 +289,18 @@ while not exit_game:
 
         # Process the events in the game
         for event in pygame.event.get():
+            # Clicking window X, red, close button
             if event.type == pygame.QUIT:
                 exit_game = True
+            # Conditions for keypress
             elif event.type == pygame.KEYDOWN:
+                # Releasing ball form paddle
                 if event.key == pygame.K_SPACE:
                     ball.isActive = True
 
-                elif event.key == pygame.K_RETURN and game_over == True:
+                # Rematch, replay game
+                elif event.key == pygame.K_RETURN and game_over is True:
+                    # Reinitializing all game objects, so that we start fresh
                     points = 0
                     lives = 3
                     game_over = False
@@ -282,7 +325,8 @@ while not exit_game:
                         # Move the top of the next row down
                         top += block_height + 5
 
-                elif event.key == pygame.K_ESCAPE and game_over == True:
+                # Going back to menu and resetting game
+                elif event.key == pygame.K_ESCAPE and game_over is True:
                     points = 0
                     lives = 3
                     game_over = False
@@ -307,6 +351,7 @@ while not exit_game:
                         # Move the top of the next row down
                         top += block_height + 5
                     playing = False
+                    # Showing mouse so that we can see what are we clicking in the menu
                     pygame.mouse.set_visible(1)
 
         # Update the ball and player position as long
@@ -335,16 +380,17 @@ while not exit_game:
             score_position = score.get_rect(centerx=background.get_width() / 2)
             score_position.top = 330
             screen.blit(score, score_position)
-            info = font.render("Press esc to get back to Main Menu", True, white)
+            info = font.render("Press Escape to go back to menu, Enter to play again!", True, white)
             info_position = info.get_rect(centerx=background.get_width() / 2)
             info_position.top = 360
             screen.blit(info, info_position)
 
         # See if the ball hits the player paddle
         if pygame.sprite.spritecollide(player, balls, False):
+
             # The 'angle_difference' lets you try to bounce the ball left or right
-            # depending where on the paddle you hit it
-            angle_difference = (player.rect.x + player.width / 2) - (ball.rect.x + ball.width / 2)
+            # depending where on the paddle you hit it max difference is 22,5 degree
+            angle_difference = ((player.rect.x + player.width / 2) - (ball.rect.x + ball.width / 2))/2
 
             # Set the ball's y position in case
             # we hit the ball on the edge of the paddle
@@ -357,6 +403,7 @@ while not exit_game:
         # If we actually hit a block, bounce the ball
         if len(deadblocks) > 0:
             ball.bounce(0)
+            # adding points
             points += len(deadblocks)
 
             # Game ends if all the blocks are gone
@@ -370,13 +417,22 @@ while not exit_game:
         pygame.display.flip()
 
     else:
+        # This is the option when game menu is active or playing False in other words
+        # Getting and handling events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit_game = True
+        # Painting surface black
         screen.fill(black)
+
+        # getting mouse position
         mouse = pygame.mouse.get_pos()
+
+        # Getting info whether we click left mouse button
         click = pygame.mouse.get_pressed()
-        clock.tick(15)
+        # Limiting frame rate
+        clock.tick(60)
+        #Printing text in blocks so in result buttons
         start_text = font.render("START GAME", 1, white)
         start_text_position = start_text.get_rect(centerx=background.get_width() / 2)
         start_text_position.top = 215
@@ -409,7 +465,8 @@ while not exit_game:
         screen.blit(quit_game_text, quit_game_text_position)
         screen.blit(game_title_text, game_title_text_position)
 
+        # Showing drawn elements
         pygame.display.flip()
 
-
+# After the loop exit game
 pygame.quit()
