@@ -20,32 +20,6 @@ Classes inherit from sprite class that is predefined in Pygame, and used for eas
 '''
 
 
-class Block(pygame.sprite.Sprite):
-    """Class represents Block, element of the game that is intended to be destroyed by ball"""
-
-    def __init__(self, color, x, y):
-        """ Constructor requires color, and coordinates
-        color - color of block
-        x - x coordinate for block location
-        y - y coordinate for block location on screen"""
-
-        # using super class constructor
-        super().__init__()
-
-        # creates Blocks surface
-        self.image = pygame.Surface([block_width, block_height])
-
-        # fill block with color entered in constructor
-        self.image.fill(color)
-
-        # make object a rectangle with dimensions of image
-        self.rect = self.image.get_rect()
-
-        # setting rectangle placement using arguments entered
-        self.rect.x = x
-        self.rect.y = y
-
-
 class Ball(pygame.sprite.Sprite):
     """Class represents Ball, our main item that bounces when coliding with paddle
      used to destroy blocks"""
@@ -78,7 +52,7 @@ class Ball(pygame.sprite.Sprite):
         self.image = pygame.Surface([self.width, self.height])
 
         # fill surface with color(red)
-        self.image.fill(red)
+        self.image.fill(white)
 
         # making it a rectangle object
         self.rect = self.image.get_rect()
@@ -164,7 +138,7 @@ class Paddle(pygame.sprite.Sprite):
         self.image = pygame.Surface([self.width, self.height])
 
         # Fill it with color
-        self.image.fill(white)
+        self.image.fill(red)
 
         # Create rectangular object so that we have it physically
         self.rect = self.image.get_rect()
@@ -189,6 +163,33 @@ class Paddle(pygame.sprite.Sprite):
         # Locking it in main game surface
         if self.rect.x > self.screenwidth - self.width:
             self.rect.x = self.screenwidth - self.width
+
+
+class Block(pygame.sprite.Sprite):
+    """Class represents Block, element of the game that is intended to be destroyed by ball"""
+
+    def __init__(self, color, x, y):
+        """ Constructor requires color, and coordinates
+        color - color of block
+        x - x coordinate for block location
+        y - y coordinate for block location on screen"""
+
+        # using super class constructor
+        super().__init__()
+
+        # creates Blocks surface
+        self.image = pygame.Surface([block_width, block_height])
+
+        # fill block with color entered in constructor
+        self.image.fill(color)
+
+        # make object a rectangle with dimensions of image
+        self.rect = self.image.get_rect()
+
+        # setting rectangle placement using arguments entered
+        self.rect.x = x
+        self.rect.y = y
+
 
 """Here starts our game logic"""
 pygame.init()
@@ -390,7 +391,7 @@ while not exit_game:
 
             # The 'angle_difference' lets you try to bounce the ball left or right
             # depending where on the paddle you hit it max difference is 22,5 degree
-            angle_difference = ((player.rect.x + player.width / 2) - (ball.rect.x + ball.width / 2))/2
+            angle_difference = ((player.rect.x + player.width / 2) - (ball.rect.x + ball.width / 2))/1.5
 
             # Set the ball's y position in case
             # we hit the ball on the edge of the paddle
